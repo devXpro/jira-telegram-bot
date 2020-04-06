@@ -13,6 +13,9 @@ bot = telebot.TeleBot('1112147029:AAFdCrgVW7VNIvzrgsG7v7E5G7sPUII35fw');
 WEBHOOK_LISTEN = "0.0.0.0"
 WEBHOOK_PORT = 8443
 
+# WEBHOOK_SSL_CERT = "/etc/letsencrypt/live/YOUR.DOMAIN/fullchain.pem"
+# WEBHOOK_SSL_PRIV = "/etc/letsencrypt/live/YOUR.DOMAIN/privkey.pem"
+
 app = web.Application()
 # process only requests with correct bot token
 async def handle(request):
@@ -71,7 +74,7 @@ def print_users(users):
         i += 1
         print(i, ' %s %s' % (user, users[str(user)]['fullname']))
 
-def report(issues, report_date):
+def report(issues, report_date, message):
     msg = 'Daily reports for ' + report_date + ' :'
     bot.send_message(message.from_user.id, msg)
 
@@ -101,7 +104,7 @@ def report(issues, report_date):
         for f in failed_users:
             bot.send_message(message.from_user.id,f)
 
-def report_details(issue_key):
+def report_details(issue_key, message):
     current_issue = jira.issue(issue_key)
     msg = 'Report details for ' + issue_key + ' :'
     bot.send_message(message.from_user.id, msg)
@@ -142,7 +145,7 @@ def get_command(message):
         r_date = message.text.strip()[-10:]
         report_users = jira.group_members('daily_reports')
         issues = get_report_issues(0,100,r_date)
-        report(issues, r_date)
+        report(issues, r_date, message)
         bot.register_next_step_handler(message, get_command)
 
     elif message.text == 'my_id':
@@ -158,7 +161,7 @@ def get_command(message):
         r_key = r_key[15:]
         r_key = r_key.strip()
         if len(r_key) > 0:
-            report_details(r_key)
+            report_details(r_key, message)
         else:
             bot.send_message(message.from_user.id, "В запросе нет ключа таски. Давай попробуем ещё раз - что ты от меня хочешь?")
             bot.register_next_step_handler(message, get_command)
@@ -181,7 +184,7 @@ def get_date_for_report(message):
         r_date = message.text[0:10]
         report_users = jira.group_members('daily_reports')
         issues = get_report_issues(0,100,r_date)
-        report(issues, r_date)
+        report(issues, r_date, message)
         bot.register_next_step_handler(message, get_command)
     else:
         bot.send_message(message.from_user.id, "либо это не дата, либо формат неправильный, нужно daily_report YYYY-MM-DD")
@@ -196,5 +199,7 @@ def get_date_for_report(message):
 web.run_app(
     app,
     host=WEBHOOK_LISTEN,
-    port=WEBHOOK_PORT
+    port=WEBHOOK_PORT,
+    # ssl_context=context,
 )
+
