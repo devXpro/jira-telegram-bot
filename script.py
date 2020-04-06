@@ -74,7 +74,7 @@ def print_users(users):
         i += 1
         print(i, ' %s %s' % (user, users[str(user)]['fullname']))
 
-def report(issues, report_date, message):
+def report(issues, report_date, report_users, message):
     msg = 'Daily reports for ' + report_date + ' :'
     bot.send_message(message.from_user.id, msg)
 
@@ -145,7 +145,7 @@ def get_command(message):
         r_date = message.text.strip()[-10:]
         report_users = jira.group_members('daily_reports')
         issues = get_report_issues(0,100,r_date)
-        report(issues, r_date, message)
+        report(issues, r_date, report_users, message)
         bot.register_next_step_handler(message, get_command)
 
     elif message.text == 'my_id':
