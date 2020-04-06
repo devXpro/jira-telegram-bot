@@ -13,9 +13,6 @@ bot = telebot.TeleBot('1112147029:AAFdCrgVW7VNIvzrgsG7v7E5G7sPUII35fw');
 WEBHOOK_LISTEN = "0.0.0.0"
 WEBHOOK_PORT = 8443
 
-# WEBHOOK_SSL_CERT = "/etc/letsencrypt/live/YOUR.DOMAIN/fullchain.pem"
-# WEBHOOK_SSL_PRIV = "/etc/letsencrypt/live/YOUR.DOMAIN/privkey.pem"
-
 app = web.Application()
 # process only requests with correct bot token
 async def handle(request):
@@ -199,7 +196,5 @@ def get_date_for_report(message):
 web.run_app(
     app,
     host=WEBHOOK_LISTEN,
-    port=WEBHOOK_PORT,
-    # ssl_context=context,
+    port=WEBHOOK_PORT
 )
-
