@@ -128,7 +128,7 @@ def get_name(message):
         bot.send_message(message.from_user.id, "Чего вы хотите?")
         bot.register_next_step_handler(message, get_pass)
     else:
-        bot.send_message(message.from_user.id, 'Напиши /reg')
+        bot.send_message(message.from_user.id, 'Напиши /start')
         bot.register_next_step_handler(message, start)
 
 def get_pass(message):
@@ -137,7 +137,7 @@ def get_pass(message):
         bot.send_message(message.from_user.id, "Чаво нада, хазяин?")
         bot.register_next_step_handler(message, get_command)
     else:
-        bot.send_message(message.from_user.id, 'Напиши /reg')
+        bot.send_message(message.from_user.id, 'Напиши /start')
         bot.register_next_step_handler(message, start)
 
 def get_command(message):
