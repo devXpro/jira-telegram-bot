@@ -1,0 +1,9 @@
+version: '3'
+services:
+  python:
+    build: .docker/python
+    container_name: python-jira-bot
+    ports:
+      - 2953:8443
+    volumes:
+      - .:/root
