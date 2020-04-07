@@ -175,7 +175,7 @@ def get_command(message):
         bot.register_next_step_handler(message, get_command)
         
     else:
-        bot.send_message(message.from_user.id, "хмммммм, не знаю таких команд, попробуй ещё разок")
+        bot.send_message(message.from_user.id, "хмммм, не знаю таких команд, попробуй ещё разок")
         bot.send_message(message.from_user.id, "или /help попробуй @_@")
         bot.register_next_step_handler(message, get_command)
 
