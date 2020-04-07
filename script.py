@@ -34,7 +34,7 @@ jira = JIRA(options=jira_options, basic_auth=("jira_bot", "1=20-c_78My/t*fd$8lu/
 
 def get_report_issues(block_num,block_size,chosen_date):
     while True:
-        jql = 'summary ~ "Daily Report" AND worklogDate = ' + chosen_date
+        jql = 'worklogDate = ' + chosen_date
         start_idx = block_num * block_size
         if block_num == 0:
             issues = jira.search_issues(jql, start_idx, block_size)
