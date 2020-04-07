@@ -158,7 +158,7 @@ def get_command(message):
 
     elif 'report_details' in message.text:
         r_key = message.text.strip()
-        r_key = r_key[15:]
+        r_key = r_key[14:]
         r_key = r_key.strip()
         if len(r_key) > 0:
             report_details(r_key, message)
