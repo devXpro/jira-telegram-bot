@@ -31,6 +31,7 @@ app.router.add_post("/{token}/", handle)
 
 jira_options = {'server': 'https://jira.ejaw.net'}
 jira = JIRA(options=jira_options, basic_auth=("jira_bot", "1=20-c_78My/t*fd$8lu//YgutdIO"))
+trusted_users = ['shroombratan', 'Pablito_Po', 'yaroslava_hr', 'maxliulchuk', 'aRe_10']
 
 def get_report_issues(block_num,block_size,chosen_date):
     while True:
@@ -106,39 +107,24 @@ def report(issues, report_date, report_users, message):
 
 def report_details(issue_key, message):
     current_issue = jira.issue(issue_key)
-    msg = 'Report details for ' + issue_key + ' :'
-    bot.send_message(message.from_user.id, msg)
+    msg = [f'Report details for {issue_key} :']
     for w in current_issue.fields.worklog.worklogs:
-        msg = w.author + ' : ' + w.timeSpent
-        bot.send_message(message.from_user.id, msg)
-        bot.send_message(message.from_user.id, w.comment)
-        bot.send_message(message.from_user.id, '----------------------------')
+        msg.extend((f'{w.author.name} : {w.timeSpent}', w.comment, '----------------------------'))
+    bot.send_message(message.from_user.id, '\n'.join(msg))
+
 
 @bot.message_handler(func=lambda message: True, content_types=['text'])
-
 def start(message):
     if message.text == '/start':
-        bot.send_message(message.from_user.id, "Вы кто такие?")
-        bot.register_next_step_handler(message, get_name)
+        if message.from_user.username in trusted_users:
+            bot.send_message(message.from_user.id, "Ок, поехали, тебе я доверяю")
+            bot.send_message(message.from_user.id, "Чаво нада, хазяин?")
+            bot.register_next_step_handler(message, get_command)
+        else:
+            bot.send_message(message.from_user.id, "Наш Гендальф тебя дальше не пустит" +
+                             b'\xF0\x9F\x9A\xB7'.decode('utf-8'))
     else:
         bot.send_message(message.from_user.id, 'Напиши /start')      
-
-def get_name(message):
-    if message.text == 'EJAW':
-        bot.send_message(message.from_user.id, "Чего вы хотите?")
-        bot.register_next_step_handler(message, get_pass)
-    else:
-        bot.send_message(message.from_user.id, 'Напиши /start')
-        bot.register_next_step_handler(message, start)
-
-def get_pass(message):
-    if message.text == 'jira---reports':
-        bot.send_message(message.from_user.id, "Ок, поехали, тебе я доверяю")
-        bot.send_message(message.from_user.id, "Чаво нада, хазяин?")
-        bot.register_next_step_handler(message, get_command)
-    else:
-        bot.send_message(message.from_user.id, 'Напиши /start')
-        bot.register_next_step_handler(message, start)
 
 def get_command(message):
     if 'daily_report' in message.text and message.text != 'daily_report':
