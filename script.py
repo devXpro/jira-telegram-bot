@@ -36,7 +36,8 @@ jira = JIRA(options=jira_options, basic_auth=("jira_bot", "1=20-c_78My/t*fd$8lu/
 trusted_users = ['shroombratan', 'Pablito_Po', 'yaroslava_hr', 'maxliulchuk', 'aRe_10']
 current_shown_dates = dict()
 current_options = dict()
-SECONDS_IN_8_HOURS = 28800
+SECONDS_IN_7_HOURS = 25200
+SECONDS_IN_9_HOURS = 32400
 
 
 def send_reports(report_date, chat_id, no_report=False, busy=None):
@@ -59,19 +60,25 @@ def send_reports(report_date, chat_id, no_report=False, busy=None):
                         log_time = w.timeSpent
                     else:
                         log_time = log_time + ' + ' + w.timeSpent
-                log_issue.append(f'{issue.key} - time: {log_time}')
+                log_issue.append(f'/report_details_{issue.key.replace("-", "_")} {issue.key} - time: {log_time}')
             if busy is None:
                 msg.extend(log_issue)
             elif busy:
-                if log_seconds >= SECONDS_IN_8_HOURS:
+                if log_seconds >= SECONDS_IN_9_HOURS:
                     msg.append(f'\n{users[user]["fullname"]}')
                     msg.extend(log_issue)
             else:
-                if log_issue and log_seconds < SECONDS_IN_8_HOURS:
+                if log_issue and log_seconds <= SECONDS_IN_7_HOURS:
                     msg.append(f'\n{users[user]["fullname"]}')
                     msg.extend(log_issue)
-
     bot.send_message(chat_id, '\n'.join(msg))
+
+
+@bot.message_handler(regexp=r"report_details")
+def report_details_regex(message):
+    message_list = message.text.split("_")
+    message.text = f"{message_list[-2]}-{message_list[-1]}"
+    get_report_details(message)
 
 
 def get_report_details(message):
@@ -166,54 +173,6 @@ def handle_month_query(call):
     current_shown_dates[chat_id] = date
     markup = create_calendar(year, month)
     bot.edit_message_text("Please, choose a date", call.from_user.id, call.message.message_id, reply_markup=markup)
-
-def get_command(message):
-    if 'daily_report' in message.text and message.text != 'daily_report':
-        r_date = message.text.strip()[-10:]
-        send_reports(r_date, message)
-        bot.register_next_step_handler(message, get_command)
-
-    elif message.text == 'my_id':
-        bot.send_message(message.from_user.id, message.from_user.id)
-        bot.register_next_step_handler(message, get_command)
-                
-    elif message.text == 'daily_report':
-        bot.send_message(message.from_user.id, "окей, допустим, а на какую дату?")
-        bot.register_next_step_handler(message, get_date_for_report)
-
-    elif 'report_details' in message.text:
-        r_key = message.text.strip()
-        r_key = r_key[14:]
-        r_key = r_key.strip()
-        if len(r_key) > 0:
-            report_details(r_key, message)
-        else:
-            bot.send_message(message.from_user.id, "В запросе нет ключа таски. Давай попробуем ещё раз - что ты от меня хочешь?")
-            bot.register_next_step_handler(message, get_command)
-        
-    elif message.text == '/help':
-        msg = '''На данный момент я умею:
-        daily_report
-        daily_report YYYY-MM-DD
-        report_details *ключ таски*'''
-        bot.send_message(message.from_user.id, msg)
-        bot.register_next_step_handler(message, get_command)
-        
-    else:
-        bot.send_message(message.from_user.id, "хмммм, не знаю таких команд, попробуй ещё разок")
-        bot.send_message(message.from_user.id, "или /help попробуй @_@")
-        bot.register_next_step_handler(message, get_command)
-
-def get_date_for_report(message):
-    if len(message.text) == 10 and message.text.count('-') == 2 and message.text[0:4].isnumeric()and message.text[5:7].isnumeric()and message.text[8:10].isnumeric():
-        r_date = message.text[:10]
-        send_reports(r_date, message)
-        bot.register_next_step_handler(message, get_command)
-    else:
-        bot.send_message(message.from_user.id, "либо это не дата, либо формат неправильный, нужно daily_report YYYY-MM-DD")
-        bot.send_message(message.from_user.id, "или /help попробуй @_@")
-        bot.register_next_step_handler(message, get_command)
-
 
 # context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 # context.load_cert_chain(WEBHOOK_SSL_CERT, WEBHOOK_SSL_PRIV)
