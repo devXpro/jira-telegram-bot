@@ -45,11 +45,13 @@ def send_reports(report_date, chat_id, no_report=False, busy=None):
     users = jira.group_members('daily_reports')
     for user in users:
         issues = jira.search_issues(f'worklogDate={report_date} and worklogAuthor={user}', fields=('worklog',))
-        if not issues and busy is None:
-            msg.append(f'\n{users[user]["fullname"]}\nhas no report')
-        elif not no_report:
+        if not no_report:
             if busy is not None:
                 log_seconds = 0
+            else:
+                msg.append(f'\n{users[user]["fullname"]}')
+                if not issues:
+                    msg.append('has no report')
             log_issue = list()
             for issue in issues:
                 log_time = ''
@@ -71,6 +73,10 @@ def send_reports(report_date, chat_id, no_report=False, busy=None):
                 if log_issue and log_seconds <= SECONDS_IN_7_HOURS:
                     msg.append(f'\n{users[user]["fullname"]}')
                     msg.extend(log_issue)
+        else:
+            if not issues:
+                msg.append(f'\n{users[user]["fullname"]}')
+                msg.append('has no report')
     bot.send_message(chat_id, '\n'.join(msg))
 
 
@@ -139,7 +145,7 @@ def handle_day_query(call):
         date = f'{saved_date[0]}-{month}-{day}'
         option = current_options[chat_id]
         if option == 'daily_report':
-            send_reports(date, chat_id)
+            send_reports(date, chat_id, no_report=False)
         elif option == 'rep_empty':
             send_reports(date, chat_id, no_report=True)
         elif option == 'rep_busy':
