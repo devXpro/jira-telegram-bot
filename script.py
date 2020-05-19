@@ -41,7 +41,10 @@ SECONDS_IN_9_HOURS = 32400
 
 
 def send_reports(report_date, chat_id, no_report=False, busy=None):
-    msg = [f'Daily reports for {report_date} :']
+    if no_report:
+        msg = ['No report:\n']
+    else:
+        msg = [f'Daily reports for {report_date} :']
     users = jira.group_members('daily_reports')
     for user in users:
         issues = jira.search_issues(f'worklogDate={report_date} and worklogAuthor={user}', fields=('worklog',))
@@ -75,8 +78,7 @@ def send_reports(report_date, chat_id, no_report=False, busy=None):
                     msg.extend(log_issue)
         else:
             if not issues:
-                msg.append(f'\n{users[user]["fullname"]}')
-                msg.append('has no report')
+                msg.append(f'{users[user]["fullname"]}')
     bot.send_message(chat_id, '\n'.join(msg))
 
 
