@@ -108,7 +108,7 @@ def start(message):
                 telebot.types.InlineKeyboardButton(text="daily_report", callback_data="daily_report"))
             markup.row(telebot.types.InlineKeyboardButton(text="report_details", callback_data="report_details"))
 
-            bot.send_message(message.chat.id, 'Ок, поехали, тебе я доверяю\nЧаво нада, хазяин?', reply_markup=markup)
+            bot.send_message(message.chat.id, 'Чаво нада, хазяин?', reply_markup=markup)
         else:
             bot.send_message(message.from_user.id, "Наш Гендальф тебя дальше не пустит" +
                              b'\xF0\x9F\x9A\xB7'.decode('utf-8'))
